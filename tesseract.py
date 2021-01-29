@@ -1,3 +1,19 @@
+import time
+
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+
+from PIL import Image
+import urllib.request
+import io
+from skimage import io
+
+
+def loadImage(URL):
+  image=io.imread(URL)
+  #io.imshow(io.imread(URL))
+  return image
+
 
 
 import pytesseract
@@ -12,6 +28,9 @@ from skimage.filters import threshold_local
 import base64
 
 
+print("proceed")
+
+
 
 def loadImage(URL):
   image=io.imread(URL)
@@ -21,12 +40,13 @@ def loadImage(URL):
 
 
 
+print("yes")
+
 
 #W=800
 
 #resize_proc = imutils.resize(image,width=W)
 #resize_orig = imutils.resize(image,width=W)
-
 
 
 def cleanImage(image,stage=0):
@@ -54,20 +74,17 @@ def cleanImage(image,stage=0):
 
 
 
-
-
-
-
-
-
-
 def getAppendedString(l, start):
   s = ""
   for i in range(start, len(l)):
     s+=(l[i] +  ('' if i == len(l)-1 else " "))
   return s
 
-def getDLInfo(data):
+
+
+
+
+def getDLInfo(data, data1):
   info = {}
   for line in data.split("\n"):
     if line not in ['', '  ', ' ', '    ', '   ']:
@@ -80,24 +97,47 @@ def getDLInfo(data):
         info['dob'] = l[1]
       if len(l) >= 2 and l[0] in ['5.', '5', '5,','e =i','_','eH']:
         info['dlNo'] = getAppendedString(l, 1)
-  return info
+  info1 = {}
+  for line in data1.split("\n"):
+    if line not in ['', '  ', ' ', '    ', '   ']:
+      l = line.split(" ")
+      if len(l) >= 2 and l[0] in ['1.', '1', '1,','i.']:
+        info1['lastName'] = getAppendedString(l, 1)
+      if len(l) >= 2 and l[0] in ['2.', '2', '2,','_2']:
+        info1['firstName'] = getAppendedString(l, 1)
+      if len(l) >= 2 and l[0] in ['3.', '3', '3,','39']:
+        info1['dob'] = l[1]
+      if len(l) >= 2 and l[0] in ['5.', '5', '5,','e =i','_','eH']:
+        info1['dlNo'] = getAppendedString(l, 1)
+  
 
+  a=len(info)
+  b=len(info1)
+  if a>b:
+    return info
+  else:
+    return info1
+  
 
 
 
 def getUrl(URL):
-    image = loadImage (URL)
-    thresh = cleanImage (image, stage=1)
+  image = loadImage (URL)
+  thresh = cleanImage (image, stage=1)
 
-    img_rgb1 = cv2.cvtColor (thresh, cv2.COLOR_BGR2RGB)
-    data1 = pytesseract.image_to_string (img_rgb1)
+  img_rgb1 = cv2.cvtColor (thresh, cv2.COLOR_BGR2RGB)
+  data1 = pytesseract.image_to_string (img_rgb1)
 
-    img_rgb = cv2.cvtColor (loadImage (URL), cv2.COLOR_BGR2RGB)
-    data = pytesseract.image_to_string (img_rgb)
+  img_rgb = cv2.cvtColor (loadImage (URL), cv2.COLOR_BGR2RGB)
+  data = pytesseract.image_to_string (img_rgb)
+  return (getDLInfo(data, data1))
+    
 
-    return getDLInfo (data1)
 
 
-URL="https://authenticdriverslicense.com/wp-content/uploads/2020/02/5.png"
+#URL="https://authenticdriverslicense.com/wp-content/uploads/2020/02/5.png"
 
-getUrl(URL)
+
+
+#print(getUrl(URL))
+
